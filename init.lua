@@ -102,7 +102,7 @@ vim.g.have_nerd_font = true
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -113,7 +113,7 @@ vim.opt.showmode = false
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.opt.clipboard = 'unnamedplus'
+-- vim.opt.clipboard = 'unnamedplus'
 
 -- Enable break indent
 vim.opt.breakindent = true
@@ -193,6 +193,11 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+-- HTML fix
+vim.cmd [[
+  autocmd BufNewFile,BufRead *.html set filetype=html
+]]
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -244,7 +249,7 @@ require('lazy').setup({
   --    require('Comment').setup({})
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim',    opts = {} },
+  { 'numToStr/Comment.nvim', opts = {} },
 
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
@@ -279,7 +284,7 @@ require('lazy').setup({
   -- after the plugin has been loaded:
   --  config = function() ... end
 
-  {                     -- Useful plugin to show you pending keybinds.
+  { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     config = function() -- This is the function that runs, AFTER loading
@@ -327,7 +332,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -421,11 +426,11 @@ require('lazy').setup({
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim',       opts = {} },
+      { 'j-hui/fidget.nvim', opts = {} },
 
       -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
       -- used for completion, annotations and signatures of Neovim apis
-      { 'folke/neodev.nvim',       opts = {} },
+      { 'folke/neodev.nvim', opts = {} },
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -591,10 +596,17 @@ require('lazy').setup({
         --
 
         -- HTML & CSS
-        html = {},
-        css_variables = {},
+        -- html = {},
+        tailwindcss = {},
+        -- css_variables = {},
         cssls = {},
-        cssmodules_ls = {},
+        -- cssmodules_ls = {},
+
+        --HMTX
+        htmx = {},
+
+        -- Docker
+        dockerls = {},
 
         -- SQL
         sqlls = {},
@@ -665,11 +677,11 @@ require('lazy').setup({
         },
         -- you can enable a preset for easier configuration
         presets = {
-          bottom_search = false,        -- use a classic bottom cmdline for search
-          command_palette = true,       -- position the cmdline and popupmenu together
+          bottom_search = false, -- use a classic bottom cmdline for search
+          command_palette = true, -- position the cmdline and popupmenu together
           long_message_to_split = true, -- long messages will be sent to a split
-          inc_rename = false,           -- enables an input dialog for inc-rename.nvim
-          lsp_doc_border = false,       -- add a border to hover docs and signature help
+          inc_rename = false, -- enables an input dialog for inc-rename.nvim
+          lsp_doc_border = false, -- add a border to hover docs and signature help
         },
       }
     end,
@@ -695,34 +707,30 @@ require('lazy').setup({
           require('conform').format { bufnr = args.buf, lsp_fallback = true }
         end,
       })
+      require('conform').setup {
+        notify_on_error = true,
+        format_on_save = function(bufnr)
+          -- Disable "format_on_save lsp_fallback" for languages that don't
+          -- have a well standardized coding style. You can add additional
+          -- languages here or re-enable it for the disabled ones.
+          local disable_filetypes = { c = true, cpp = true }
+          return {
+            timeout_ms = 500,
+            lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+          }
+        end,
+        formatters_by_ft = {
+          -- templ = { 'templ' },
+          lua = { 'stylua' },
+          python = { 'black' },
+          --
+          -- You can use a sub-list to tell conform to run *until* a formatter
+          -- is found.
+          typescript = {},
+          javascript = {},
+        },
+      }
     end,
-    opts = {
-      notify_on_error = false,
-      format_on_save = function(bufnr)
-        -- Disable "format_on_save lsp_fallback" for languages that don't
-        -- have a well standardized coding style. You can add additional
-        -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
-        return {
-          timeout_ms = 500,
-          lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-        }
-      end,
-      formatters_by_ft = {
-        lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use a sub-list to tell conform to run *until* a formatter
-        -- is found.
-        typescript = {},
-        javascript = {},
-        -- typescript = { { 'eslint', 'prettierd', 'prettier' } },
-        -- typescriptreact = { { 'eslint', 'prettierd', 'prettier' } },
-        -- javascript = { { 'eslint', 'prettierd', 'prettier' } },
-        -- javascriptreact = { { 'eslint', 'prettierd', 'prettier' } },
-      },
-    },
   },
 
   { -- Autocompletion
@@ -868,35 +876,43 @@ require('lazy').setup({
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
 
-      require('mini.statusline').setup()
-
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
 
-  -- { -- Status line
-  --   'nvim-lualine/lualine.nvim',
-  --   dependencies = { 'nvim-tree/nvim-web-devicons' },
-  --   config = function()
-  --     require('lualine').setup {
-  --       options = {
-  --         theme = 'sonokai',
-  --       },
-  --       sections = {
-  --         lualine_x = {
-  --           {
-  --             require('noice').api.status.command.get,
-  --             cond = require('noice').api.status.command.has,
-  --             color = { fg = '#ff9e64' },
-  --           },
-  --         },
-  --       },
-  --     }
-  --   end,
-  --   opts = {
-  --   },
-  -- },
+  { -- Lualine
+    'nvim-lualine/lualine.nvim',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
+      require('lualine').setup {
+        theme = 'sonokai',
+        sections = {
+          lualine_x = {
+            {
+              require('noice').api.status.message.get_hl,
+              cond = require('noice').api.status.message.has,
+            },
+            {
+              require('noice').api.status.command.get,
+              cond = require('noice').api.status.command.has,
+              color = { fg = '#ff9e64' },
+            },
+            {
+              require('noice').api.status.mode.get,
+              cond = require('noice').api.status.mode.has,
+              color = { fg = '#ff9e64' },
+            },
+            {
+              require('noice').api.status.search.get,
+              cond = require('noice').api.status.search.has,
+              color = { fg = '#ff9e64' },
+            },
+          },
+        },
+      }
+    end,
+  },
 
   { -- Linter
     'dense-analysis/ale',
@@ -906,7 +922,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'go', 'bash', 'c', 'diff', 'gitcommit', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
