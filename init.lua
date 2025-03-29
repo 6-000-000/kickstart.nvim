@@ -366,6 +366,11 @@ require('lazy').setup({
         --   },
         -- },
         -- pickers = {}
+        defaults = {
+          file_ignore_patterns = {
+            'node_modules',
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -583,7 +588,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
-        tsserver = {},
+        ts_ls = {},
         eslint = {
           on_attach = function(client, bufnr)
             vim.api.nvim_create_autocmd('BufWritePre', {
@@ -593,7 +598,17 @@ require('lazy').setup({
           end,
         },
         prismals = {},
-        --
+
+        -- Arduino
+        arduino_language_server = {
+          cmd = {
+            'arduino-language-server',
+            '-cli-config',
+            '/home/bobo-ross/.arduino15/arduino-cli.yaml',
+            '-fqbn',
+            'arduino:renesas_uno:unor4wifi',
+          },
+        },
 
         -- HTML & CSS
         -- html = {},
@@ -604,6 +619,12 @@ require('lazy').setup({
 
         --HMTX
         htmx = {},
+
+        -- Templ
+        svelte = {},
+
+        -- Templ
+        templ = {},
 
         -- Docker
         dockerls = {},
@@ -651,7 +672,7 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for tsserver)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+            require('lspconfig')[server_name == 'tsserver' and 'ts_ls' or server_name].setup(server)
           end,
         },
       }
@@ -884,9 +905,12 @@ require('lazy').setup({
   { -- Lualine
     'nvim-lualine/lualine.nvim',
     dependencies = { 'nvim-tree/nvim-web-devicons' },
+    event = 'VeryLazy',
     config = function()
       require('lualine').setup {
-        theme = 'sonokai',
+        options = {
+          theme = 'auto',
+        },
         sections = {
           lualine_x = {
             {
