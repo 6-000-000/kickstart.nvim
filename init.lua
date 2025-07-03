@@ -620,7 +620,7 @@ require('lazy').setup({
         --HMTX
         htmx = {},
 
-        -- Templ
+        -- Svelte
         svelte = {},
 
         -- Templ
@@ -710,6 +710,10 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
+    dependencies = {
+      -- Automatically install LSPs and related tools to stdpath for Neovim
+      { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
+    },
     lazy = false,
     keys = {
       {
@@ -749,14 +753,18 @@ require('lazy').setup({
           -- is found.
           typescript = { 'prettierd', 'prettier', stop_after_first = true },
           typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-          javascript = { 'prettierd', 'prettier', stop_after_first = true },
-          javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+          javascript = { 'eslint_d', 'prettierd', 'prettier', stop_after_first = true },
+          javascriptreact = { 'eslint_d', 'prettierd', 'prettier', stop_after_first = true },
           json = { 'prettierd', 'prettier', stop_after_first = true },
           html = { 'prettierd', 'prettier', stop_after_first = true },
           css = { 'prettierd', 'prettier', stop_after_first = true },
         },
       }
     end,
+  },
+
+  {
+    'zapling/mason-conform.nvim',
   },
 
   { -- Autocompletion
@@ -919,10 +927,6 @@ require('lazy').setup({
         sections = {
           lualine_x = {
             {
-              require('noice').api.status.message.get_hl,
-              cond = require('noice').api.status.message.has,
-            },
-            {
               require('noice').api.status.command.get,
               cond = require('noice').api.status.command.has,
               color = { fg = '#ff9e64' },
@@ -932,19 +936,10 @@ require('lazy').setup({
               cond = require('noice').api.status.mode.has,
               color = { fg = '#ff9e64' },
             },
-            {
-              require('noice').api.status.search.get,
-              cond = require('noice').api.status.search.has,
-              color = { fg = '#ff9e64' },
-            },
           },
         },
       }
     end,
-  },
-
-  { -- Linter
-    'dense-analysis/ale',
   },
 
   { -- Highlight, edit, and navigate code
