@@ -661,6 +661,11 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'prettierd',
+        'prettier',
+        'eslint_d',
+        'black',
+        'templ',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -710,10 +715,6 @@ require('lazy').setup({
 
   { -- Autoformat
     'stevearc/conform.nvim',
-    dependencies = {
-      -- Automatically install LSPs and related tools to stdpath for Neovim
-      { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
-    },
     lazy = false,
     keys = {
       {
@@ -748,23 +749,16 @@ require('lazy').setup({
           -- templ = { 'templ' },
           lua = { 'stylua' },
           python = { 'black' },
-          --
-          -- You can use a sub-list to tell conform to run *until* a formatter
-          -- is found.
-          typescript = { 'prettierd', 'prettier', stop_after_first = true },
-          typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-          javascript = { 'eslint_d', 'prettierd', 'prettier', stop_after_first = true },
-          javascriptreact = { 'eslint_d', 'prettierd', 'prettier', stop_after_first = true },
-          json = { 'prettierd', 'prettier', stop_after_first = true },
-          html = { 'prettierd', 'prettier', stop_after_first = true },
-          css = { 'prettierd', 'prettier', stop_after_first = true },
+          typescript = { 'prettierd' },
+          typescriptreact = { 'prettierd' },
+          javascript = { 'eslint_d', 'prettierd', stop_after_first = true },
+          javascriptreact = { 'eslint_d', 'prettierd', stop_after_first = true },
+          json = { 'prettierd' },
+          html = { 'prettierd' },
+          css = { 'prettierd' },
         },
       }
     end,
-  },
-
-  {
-    'zapling/mason-conform.nvim',
   },
 
   { -- Autocompletion
@@ -922,7 +916,7 @@ require('lazy').setup({
     config = function()
       require('lualine').setup {
         options = {
-          theme = 'auto',
+          theme = 'sonokai',
         },
         sections = {
           lualine_x = {
